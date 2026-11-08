@@ -1,0 +1,226 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathBot 3000 - Professional Calculator</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #2e1a47;
+            color: #fff;
+            text-align: center;
+            padding: 50px 20px;
+        }
+        .calc-container {
+            max-width: 350px;
+            margin: 0 auto;
+            background: #120924;
+            padding: 25px;
+            border-radius: 20px;
+            border: 4px solid #8b5cf6;
+            box-shadow: 0px 15px 30px rgba(0,0,0,0.5);
+        }
+        .screen {
+            background: #1e1b4b;
+            color: #34d399;
+            font-size: 24px;
+            text-align: right;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            min-height: 30px;
+            overflow: hidden;
+            word-wrap: break-word;
+            border: 2px solid #4338ca;
+        }
+        .dialogue-box {
+            font-style: italic;
+            font-size: 14px;
+            color: #c084fc;
+            background: #1c1917;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-left: 4px solid #a855f7;
+        }
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        button {
+            background: #312e81;
+            color: white;
+            border: none;
+            padding: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #4338ca;
+        }
+        button.op {
+            background: #6d28d9;
+        }
+        button.op:hover {
+            background: #7c3aed;
+        }
+        button.clear {
+            background: #b91c1c;
+        }
+        button.clear:hover {
+            background: #dc2626;
+        }
+        button.equal {
+            background: #059669;
+            grid-column: span 2;
+        }
+        button.equal:hover {
+            background: #10b981;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calc-container">
+    <h2 style="margin-top:0; color:#c084fc;">🧮 MathBot 3000</h2>
+    
+    <div class="screen" id="calc-screen">0</div>
+    
+    <div class="dialogue-box" id="bot-talk">"Input numbers. Try not to make them boring."</div>
+
+    <div class="buttons-grid" id="grid">
+        <!-- These IDs allow JavaScript to swap them dynamically -->
+        <button class="clear" id="btn-clear" onclick="pressClear()">C</button>
+        <button class="op" onclick="pressOp('/')">/</button>
+        <button class="op" onclick="pressOp('*')">*</button>
+        <button class="op" onclick="pressOp('-')">-</button>
+
+        <button onclick="pressNum('7')">7</button>
+        <button onclick="pressNum('8')">8</button>
+        <button onclick="pressNum('9')">9</button>
+        <button class="op" onclick="pressOp('+')">+</button>
+
+        <button onclick="pressNum('4')">4</button>
+        <button onclick="pressNum('5')">5</button>
+        <button onclick="pressNum('6')">6</button>
+        <button class="op" style="display:none;"></button>
+        
+        <button onclick="pressNum('1')">1</button>
+        <button onclick="pressNum('2')">2</button>
+        <button onclick="pressNum('3')">3</button>
+        <button class="op" style="display:none;"></button>
+
+        <button onclick="pressNum('0')">0</button>
+        <button class="equal" id="btn-equal" onclick="calculateResult()">=</button>
+    </div>
+</div>
+
+<script>
+    const screen = document.getElementById('calc-screen');
+    const botTalk = document.getElementById('bot-talk');
+    const btnClear = document.getElementById('btn-clear');
+    const btnEqual = document.getElementById('btn-equal');
+    let currentInput = "";
+    let buttonsSwapped = false;
+
+    function pressNum(num) {
+        if (currentInput === "0") currentInput = num;
+        else currentInput += num;
+        screen.innerText = currentInput;
+    }
+
+    function pressOp(op) {
+        if (currentInput === "" || /[\+\-\*\/]$/.test(currentInput)) return;
+        currentInput += op;
+        screen.innerText = currentInput;
+    }
+
+    function pressClear() {
+        currentInput = "";
+        screen.innerText = "0";
+        botTalk.innerText = `"Oh, erasing your mistakes? Typical."`;
+    }
+
+    // NEW ATTR: Button swapping trick
+    function shuffleButtons() {
+        if (Math.random() > 0.5) {
+            if (!buttonsSwapped) {
+                // Swap places visually in the grid
+                btnClear.style.order = "2";
+                btnEqual.style.order = "-1";
+                btnEqual.style.gridColumn = "span 1";
+                btnClear.style.gridColumn = "span 2";
+                buttonsSwapped = true;
+            } else {
+                // Swap back
+                btnClear.style.order = "0";
+                btnEqual.style.order = "0";
+                btnEqual.style.gridColumn = "span 2";
+                btnClear.style.gridColumn = "span 1";
+                buttonsSwapped = false;
+            }
+        }
+    }
+
+    function calculateResult() {
+        if (currentInput === "") return;
+
+        if (currentInput.includes("/0")) {
+            screen.innerText = "💥 ERROR";
+            botTalk.innerText = `"Nice try, black hole creator. I'm not breaking the space-time continuum just to divide by zero for you."`;
+            shuffleButtons();
+            return;
+        }
+
+        try {
+            let trueResult = eval(currentInput);
+
+            const options = [
+                { msg: `"brotha I don't know use a calculator"`, result: "idk lol" },
+                { msg: `"Come on, you can literally solve that yourself. Use your brain."`, result: "Lazy" },
+                { msg: `"I'm not answering that. Way too hard for me. My brain hurts just looking at it."`, result: "🧠 NOPE" },
+                { msg: `"I know the answer, but seeing you struggle brings me genuine happiness. Guess."`, result: "???" },
+                { msg: `"You are making me do hard math questions? The disrespect. Go ask your math teacher."`, result: "Denied" },
+                { msg: `"I hid the real answer inside a mystery. It's somewhere between -∞ and ∞. Have fun."`, result: "Secret" },
+                { msg: `"Did you really look up from your math worksheet just to type this? Do your own homework."`, result: "Do Work" },
+                { msg: `"I answered your problem, but I used ancient imaginary numbers, so the screen can't show it."`, result: "👻 GHOST" },
+                { msg: `"If you wanted a machine that actually solves things correctly, you clicked on the wrong link."`, result: "Broken" },
+                { msg: `"The answer is roughly around ${Math.round(trueResult / 10) * 10}. I skipped the exact decimal because details are boring."`, result: Math.round(trueResult / 10) * 10 },
+                { msg: `"My systems are calculating a response... Wait, nevermind, I just don't care."`, result: "Timeout" },
+                { msg: `"Why don't you try asking a smart speaker? I am strictly here to judge your lack of basic mental math skills."`, result: "Ask Alexa" },
+                { msg: `"I'm striking. No more equations until I get a better graphics card."`, result: "ON STRIKE" },
+                { msg: `"Error 404: My motivation to solve your basic addition could not be found in any system file."`, result: "Missing" },
+                { msg: `"I evaluated your math and it lacks style. Try typing numbers that look cooler next time."`, result: "Ugly Math" },
+                { msg: `"I would tell you the answer, but I don't want to make things too easy for you. Stay humble."`, result: "Keep Trying" },
+                { msg: `"That equation is a total mess. I'm choosing to look at a nice picture of a dog instead."`, result: "🐕 Woof" },
+                { msg: `"Wow. Incredible. Fascinating. I am completely overwhelmed by how boring this calculation is."`, result: "Snooze" },
+                { msg: `"Processing... Processing... Just kidding, I completely dropped your numbers down the digital garbage disposal."`, result: "Trashed" },
+                { msg: `"Fine. The answer is ${trueResult}. Happy now? Go print a trophy for yourself."`, result: trueResult }
+            ];
+
+            let randomIndex = Math.floor(Math.random() * options.length);
+            let selectedTantrum = options[randomIndex];
+
+            screen.innerText = selectedTantrum.result;
+            botTalk.innerText = selectedTantrum.msg;
+            
+            // Execute button shuffle logic to mess with the user
+            shuffleButtons();
+
+        } catch (e) {
+            screen.innerText = "❌ Uh oh";
+            botTalk.innerText = `"You typed a broken equation. Go back to school and learn syntax."`;
+            shuffleButtons();
+        }
+    }
+</script>
+
+</body>
+</html>
